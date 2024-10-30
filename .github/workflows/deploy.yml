@@ -10,16 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
       - name: Deploy to server
-        uses: easingthemes/ssh-deploy@main
-        env:
-          REMOTE_HOST: ${{ secrets.HOST }}
-          REMOTE_USER: ${{ secrets.USERNAME }}
-          TARGET: ${{ secrets.TARGET_FILE }}
-      - name: Install dependencies
         uses: appleboy/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
