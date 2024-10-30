@@ -1,32 +1,38 @@
-name: Deploy Backend
+name: Deploy Express.js App to VPS
 
 on:
   push:
     branches:
-      - main
+      - main # Replace with your deployment branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
+      - name: Checkout Code
         uses: actions/checkout@v3
 
-      - name: Deploy to Server
-        uses: easingthemes/ssh-deploy@main
-        env:
-          SSH_PRIVATE_KEY: ${{ secrets.PRIVATE_SSH_KEY }}
-          REMOTE_HOST: ${{ secrets.HOST }}
-          REMOTE_USER: ${{ secrets.USERNAME }}
-          TARGET: ${{ secrets.TARGET_FILE }}
-      - name: Install dependencies
-        uses: appleboy/ssh-action@master
+      - name: Setup SSH
+        uses: webfactory/ssh-agent@v0.5.3
         with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.PRIVATE_SSH_KEY }}
-          script: |
-            cd test
+          ssh-private-key: ${{ secrets.PRIVATE_SSH_KEY }}
+
+      - name: Deploy to VPS
+        env:
+          VPS_HOST: ${{ secrets.HOST }}
+          VPS_USER: ${{ secrets.USERNAME }}
+        run: |
+          ssh $VPS_USER@$VPS_HOST << 'EOF'
+            # Change to your app directory
+            cd 
+
+            # Pull latest changes
+            sudo git pull origin main
+
+            # Install dependencies
             sudo npm install
-            sudo pm2 restart all
+
+            # Restart the app (using PM2 for example)
+            pm2 restart all || pm2 start app.js --name my-express-app
+          EOF
